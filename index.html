@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChurnSight — Customer Retention Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">📡</div>
+        <div class="logo-text">Churn<span>Sight</span></div>
+      </div>
+      <div class="badge">Random Forest · 84% Accuracy</div>
+    </div>
+  </header>
+
+  <div class="page-title">
+    <h1>Predict Customer<br><em>Churn Risk</em></h1>
+    <p>Fill in the customer profile below to get an instant churn probability score powered by your trained Random Forest model.</p>
+  </div>
+
+  <div class="server-note">
+    <strong>⚡ Setup:</strong> This frontend connects to <code>http://localhost:5000</code>.
+    Run <code>pip install flask flask-cors joblib scikit-learn numpy</code> then <code>python app.py</code> to start the backend.
+    Place <code>app.py</code>, <code>Random_Forest_churn.pkl</code>, <code>scaler.pkl</code>, and <code>columns.pkl</code> in the same folder.
+  </div>
+
+  <form id="churnForm">
+
+    <!-- Demographics -->
+    <div class="form-section">
+      <div class="section-header">
+        <span class="section-tag">01</span>
+        <span class="section-title">Demographics</span>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Gender</label>
+          <select name="gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Senior Citizen</label>
+          <select name="SeniorCitizen">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Has Partner</label>
+          <select name="Partner">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Has Dependents</label>
+          <select name="Dependents">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Info -->
+    <div class="form-section">
+      <div class="section-header">
+        <span class="section-tag">02</span>
+        <span class="section-title">Account Details</span>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Tenure (months)</label>
+          <input type="number" name="tenure" value="12" min="0" max="72" />
+        </div>
+        <div class="field">
+          <label>Monthly Charges ($)</label>
+          <input type="number" name="MonthlyCharges" value="65.00" step="0.01" min="0" />
+        </div>
+        <div class="field">
+          <label>Total Charges ($)</label>
+          <input type="number" name="TotalCharges" value="780.00" step="0.01" min="0" />
+        </div>
+        <div class="field">
+          <label>Contract Type</label>
+          <select name="Contract">
+            <option value="Month-to-month">Month-to-month</option>
+            <option value="One year">One year</option>
+            <option value="Two year">Two year</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Paperless Billing</label>
+          <select name="PaperlessBilling">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Payment Method</label>
+          <select name="PaymentMethod">
+            <option value="Electronic check">Electronic check</option>
+            <option value="Mailed check">Mailed check</option>
+            <option value="Bank transfer (automatic)">Bank transfer (auto)</option>
+            <option value="Credit card (automatic)">Credit card (auto)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone Services -->
+    <div class="form-section">
+      <div class="section-header">
+        <span class="section-tag">03</span>
+        <span class="section-title">Phone Services</span>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Phone Service</label>
+          <select name="PhoneService">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Multiple Lines</label>
+          <select name="MultipleLines">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No phone service">No phone service</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Internet Services -->
+    <div class="form-section">
+      <div class="section-header">
+        <span class="section-tag">04</span>
+        <span class="section-title">Internet Services</span>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Internet Service</label>
+          <select name="InternetService" id="internetService" onchange="updateInternetDeps()">
+            <option value="DSL">DSL</option>
+            <option value="Fiber optic">Fiber optic</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Online Security</label>
+          <select name="OnlineSecurity" class="internet-dep">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No internet service">No internet service</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Online Backup</label>
+          <select name="OnlineBackup" class="internet-dep">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No internet service">No internet service</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Device Protection</label>
+          <select name="DeviceProtection" class="internet-dep">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No internet service">No internet service</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tech Support</label>
+          <select name="TechSupport" class="internet-dep">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No internet service">No internet service</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Streaming TV</label>
+          <select name="StreamingTV" class="internet-dep">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No internet service">No internet service</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Streaming Movies</label>
+          <select name="StreamingMovies" class="internet-dep">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+            <option value="No internet service">No internet service</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <button type="submit" class="btn-predict" id="submitBtn">
+        Analyze Churn Risk →
+      </button>
+    </div>
+  </form>
+
+  <!-- Result Panel -->
+  <div id="result"></div>
+
+  <footer>
+    ChurnSight · Powered by Random Forest · Telco Customer Churn Dataset
+  </footer>
+</div>
+
+<script src="script.js">
+</script>
+</body>
+</html>
