@@ -50,6 +50,14 @@ ENCODING = {
 def index():
     return send_from_directory('.', 'index.html')
 
+@app.route('/style.css')
+def serve_css():
+    return send_from_directory('.', 'style.css')
+
+@app.route('/script.js')
+def serve_js():
+    return send_from_directory('.', 'script.js')
+
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
