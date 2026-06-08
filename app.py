@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import joblib
 import numpy as np
@@ -6,14 +6,14 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
-app = Flask(__name__, static_folder='.')
+app = Flask(__name__)
 CORS(app)
 
 # Load model artifacts
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-model = joblib.load(os.path.join(BASE_DIR, 'Random_Forest_churn.pkl'))
-scaler = joblib.load(os.path.join(BASE_DIR, 'scaler.pkl'))
-columns = joblib.load(os.path.join(BASE_DIR, 'columns.pkl'))
+model = joblib.load(os.path.join(BASE_DIR, 'models', 'Random_Forest_churn.pkl'))
+scaler = joblib.load(os.path.join(BASE_DIR, 'models', 'scaler.pkl'))
+columns = joblib.load(os.path.join(BASE_DIR, 'models', 'columns.pkl'))
 
 # Encoding maps derived from LabelEncoder alphabetical sorting
 # MultipleLines: No=0, No phone service=1, Yes=2
@@ -48,15 +48,15 @@ ENCODING = {
 
 @app.route('/')
 def index():
-    return send_from_directory('.', 'index.html')
+    return render_template('index.html')
 
-@app.route('/style.css')
-def serve_css():
-    return send_from_directory('.', 'style.css')
+# @app.route('/style.css')
+# def serve_css():
+#     return send_from_directory('.', 'style.css')
 
-@app.route('/script.js')
-def serve_js():
-    return send_from_directory('.', 'script.js')
+# @app.route('/script.js')
+# def serve_js():
+#     return send_from_directory('.', 'script.js')
 
 @app.route('/predict', methods=['POST'])
 def predict():
