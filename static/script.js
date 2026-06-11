@@ -1,102 +1,110 @@
+// Handle Internet Service dependencies
 function updateInternetDeps() {
-    const val = document.getElementById('internetService').value;
-    const deps = document.querySelectorAll('.internet-dep');
-    deps.forEach(sel => {
-      if (val === 'No') {
-        sel.value = 'No internet service';
-        sel.disabled = true;
-        sel.style.opacity = '0.4';
-      } else {
-        sel.disabled = false;
-        sel.style.opacity = '1';
-        if (sel.value === 'No internet service') sel.value = 'No';
+  const val = document.getElementById('internetService').value;
+  const deps = document.querySelectorAll('.internet-dep');
+  
+  deps.forEach(sel => {
+    if (val === 'No') {
+      sel.value = 'No internet service';
+      sel.disabled = true;
+      sel.style.opacity = '0.4';
+    } else {
+      sel.disabled = false;
+      sel.style.opacity = '1';
+      if (sel.value === 'No internet service') {
+        sel.value = 'No';
       }
-    });
-  }
-
-  document.getElementById('churnForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('submitBtn');
-    const resultDiv = document.getElementById('result');
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Analyzing...';
-
-    const formData = new FormData(e.target);
-    const payload = {};
-    formData.forEach((val, key) => { payload[key] = val; });
-
-    try {
-      const res = await fetch('/predict', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-
-      if (data.error) throw new Error(data.error);
-
-      const isChurn = data.prediction === 1;
-      const riskClass = `risk-${data.risk_level.toLowerCase()}`;
-      const verdictClass = isChurn ? 'churn' : 'stay';
-      const verdictText = isChurn ? '⚠ Likely to Churn' : '✓ Likely to Stay';
-
-      resultDiv.className = 'visible';
-      resultDiv.innerHTML = `
-        <div class="result-header">
-          <div>
-            <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Prediction Result</div>
-            <div class="result-verdict ${verdictClass}">${verdictText}</div>
-          </div>
-          <div class="risk-badge ${riskClass}">${data.risk_level} Risk</div>
-        </div>
-
-        <div class="prob-row">
-          <div class="prob-label">Churn</div>
-          <div class="prob-bar-wrap"><div class="prob-bar churn" id="churnBar"></div></div>
-          <div class="prob-val churn">${data.churn_probability}%</div>
-        </div>
-        <div class="prob-row">
-          <div class="prob-label">Stay</div>
-          <div class="prob-bar-wrap"><div class="prob-bar stay" id="stayBar"></div></div>
-          <div class="prob-val stay">${data.stay_probability}%</div>
-        </div>
-
-        <div class="stats-row">
-          <div class="stat-card">
-            <div class="stat-label">Churn Probability</div>
-            <div class="stat-value" style="color:var(--danger)">${data.churn_probability}%</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Retention Probability</div>
-            <div class="stat-value" style="color:var(--success)">${data.stay_probability}%</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Risk Level</div>
-            <div class="stat-value" style="color:var(--accent)">${data.risk_level}</div>
-          </div>
-        </div>
-      `;
-
-      // Animate bars after render
-      setTimeout(() => {
-        document.getElementById('churnBar').style.width = data.churn_probability + '%';
-        document.getElementById('stayBar').style.width = data.stay_probability + '%';
-      }, 50);
-
-      resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-    } catch (err) {
-      resultDiv.className = 'visible';
-      resultDiv.innerHTML = `
-        <div class="error-msg">
-          ⚠ Could not connect to backend: <strong>${err.message}</strong><br>
-          Make sure <code>python app.py</code> is running on port 5000.
-        </div>
-      `;
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = 'Analyze Churn Risk →';
     }
   });
+}
+
+// Ensure initial state is correct on load
+document.addEventListener('DOMContentLoaded', () => {
+  updateInternetDeps();
+});
+
+// Handle form submission
+document.getElementById('churnForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const btn = document.getElementById('submitBtn');
+  const btnText = btn.querySelector('.btn-text');
+  const btnIcon = btn.querySelector('.btn-icon');
+  
+  const emptyState = document.getElementById('emptyState');
+  const resultsData = document.getElementById('resultsData');
+  
+  // Loading state
+  btn.disabled = true;
+  btnText.textContent = 'Processing...';
+  btnIcon.innerHTML = `<circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="31.4 31.4" class="spinner-icon"></circle>`;
+
+  const formData = new FormData(e.target);
+  const payload = {};
+  formData.forEach((val, key) => { payload[key] = val; });
+
+  try {
+    const res = await fetch('/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error);
+
+    // Hide empty state, show results
+    emptyState.style.display = 'none';
+    resultsData.style.display = 'block';
+
+    const isChurn = data.prediction === 1;
+    
+    // Update Banner
+    const verdictBanner = document.getElementById('verdictBanner');
+    const verdictIcon = document.getElementById('verdictIcon');
+    const verdictText = document.getElementById('verdictText');
+    
+    if (isChurn) {
+      verdictBanner.className = 'verdict-banner danger-mode';
+      verdictIcon.textContent = '⚠️';
+      verdictText.textContent = 'High Churn Risk';
+    } else {
+      verdictBanner.className = 'verdict-banner success-mode';
+      verdictIcon.textContent = '✅';
+      verdictText.textContent = 'Likely to Stay';
+    }
+
+    // Update Metrics
+    document.getElementById('valChurn').textContent = `${data.churn_probability}%`;
+    document.getElementById('valStay').textContent = `${data.stay_probability}%`;
+    
+    const riskPill = document.getElementById('valRisk');
+    riskPill.textContent = data.risk_level;
+    riskPill.setAttribute('data-risk', data.risk_level);
+
+    // Update Progress Bars
+    document.getElementById('labelChurn').textContent = `${data.churn_probability}%`;
+    document.getElementById('labelStay').textContent = `${data.stay_probability}%`;
+    
+    // Slight delay for animation
+    setTimeout(() => {
+      document.getElementById('barChurn').style.width = `${data.churn_probability}%`;
+      document.getElementById('barStay').style.width = `${data.stay_probability}%`;
+    }, 50);
+
+  } catch (err) {
+    emptyState.style.display = 'flex';
+    resultsData.style.display = 'none';
+    emptyState.innerHTML = `
+      <div style="color: var(--danger); text-align: center; background: var(--danger-bg); padding: 20px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2);">
+        ⚠️ Backend Connection Failed <br> <span style="font-size: 13px; color: var(--text-muted);">${err.message}</span>
+      </div>
+    `;
+  } finally {
+    // Reset button
+    btn.disabled = false;
+    btnText.textContent = 'Run Inference Engine';
+    btnIcon.innerHTML = `<path d="M5 12h14M12 5l7 7-7 7"/>`;
+  }
+});

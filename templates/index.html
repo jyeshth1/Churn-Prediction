@@ -3,223 +3,344 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChurnSight — Customer Retention Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<title>Churn Sight</title>
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+<!-- Modern, premium fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Core stylesheet -->
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 <body>
 
-<div class="container">
-  <header>
-    <div class="header-inner">
-      <div class="logo">
-        <div class="logo-icon">📡</div>
-        <div class="logo-text">Churn<span>Sight</span></div>
+<div class="dashboard-wrapper">
+  
+  <!-- Left Column: Main Form Area -->
+  <main class="dashboard-main">
+    <header class="main-header">
+      <div class="logo-area">
+        <!-- New Professional SVG Logo -->
+        <svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2Z" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" fill="url(#paint1_linear)"/>
+          <path d="M12 6V8" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 16V18" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 12H8" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 12H18" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="paint0_linear" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#8b5cf6"/>
+              <stop offset="1" stop-color="#3b82f6"/>
+            </linearGradient>
+            <linearGradient id="paint1_linear" x1="8" y1="8" x2="16" y2="16" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#8b5cf6"/>
+              <stop offset="1" stop-color="#3b82f6"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <h1 class="logo-text">Churn<span>Sight</span></h1>
       </div>
-      <div class="badge">Random Forest · 84% Accuracy</div>
-    </div>
-  </header>
-
-  <div class="page-title">
-    <h1>Predict Customer<br><em>Churn Risk</em></h1>
-    <p>Fill in the customer profile below to get an instant churn probability score powered by your trained Random Forest model.</p>
-  </div>
-
-  <div class="server-note">
-    <strong>⚡ Setup:</strong> This frontend connects to <code>http://localhost:5000</code>.
-    Run <code>pip install flask flask-cors joblib scikit-learn numpy</code> then <code>python app.py</code> to start the backend.
-    Place <code>app.py</code>, <code>Random_Forest_churn.pkl</code>, <code>scaler.pkl</code>, and <code>columns.pkl</code> in the same folder.
-  </div>
-
-  <form id="churnForm">
-
-    <!-- Demographics -->
-    <div class="form-section">
-      <div class="section-header">
-        <span class="section-tag">01</span>
-        <span class="section-title">Demographics</span>
+      <div class="header-badge">
+        <span class="pulse-dot"></span> Model Active
       </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Gender</label>
-          <select name="gender">
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Senior Citizen</label>
-          <select name="SeniorCitizen">
-            <option value="0">No</option>
-            <option value="1">Yes</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Has Partner</label>
-          <select name="Partner">
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Has Dependents</label>
-          <select name="Dependents">
-            <option value="No">No</option>
-            <option value="Yes">Yes</option>
-          </select>
-        </div>
-      </div>
+    </header>
+
+    <div class="intro-section">
+      <h2>Predict Customer Risk</h2>
+      <p>Configure the customer profile below to run inference against our advanced Random Forest model. Real-time probability scores will appear in the analytics panel.</p>
     </div>
 
-    <!-- Account Info -->
-    <div class="form-section">
-      <div class="section-header">
-        <span class="section-tag">02</span>
-        <span class="section-title">Account Details</span>
+    <form id="churnForm" class="insight-form">
+      
+      <!-- Section 1: Demographics -->
+      <div class="glass-card form-group">
+        <div class="group-header">
+          <div class="group-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <h3>Demographics</h3>
+        </div>
+        <div class="grid-2">
+          <div class="input-wrapper">
+            <label>Gender</label>
+            <div class="custom-select">
+              <select name="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <label>Senior Citizen</label>
+            <div class="custom-select">
+              <select name="SeniorCitizen">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <label>Partner</label>
+            <div class="custom-select">
+              <select name="Partner">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <label>Dependents</label>
+            <div class="custom-select">
+              <select name="Dependents">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Tenure (months)</label>
-          <input type="number" name="tenure" value="12" min="0" max="72" />
-        </div>
-        <div class="field">
-          <label>Monthly Charges ($)</label>
-          <input type="number" name="MonthlyCharges" value="65.00" step="0.01" min="0" />
-        </div>
-        <div class="field">
-          <label>Total Charges ($)</label>
-          <input type="number" name="TotalCharges" value="780.00" step="0.01" min="0" />
-        </div>
-        <div class="field">
-          <label>Contract Type</label>
-          <select name="Contract">
-            <option value="Month-to-month">Month-to-month</option>
-            <option value="One year">One year</option>
-            <option value="Two year">Two year</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Paperless Billing</label>
-          <select name="PaperlessBilling">
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Payment Method</label>
-          <select name="PaymentMethod">
-            <option value="Electronic check">Electronic check</option>
-            <option value="Mailed check">Mailed check</option>
-            <option value="Bank transfer (automatic)">Bank transfer (auto)</option>
-            <option value="Credit card (automatic)">Credit card (auto)</option>
-          </select>
-        </div>
-      </div>
-    </div>
 
-    <!-- Phone Services -->
-    <div class="form-section">
-      <div class="section-header">
-        <span class="section-tag">03</span>
-        <span class="section-title">Phone Services</span>
-      </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Phone Service</label>
-          <select name="PhoneService">
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
+      <!-- Section 2: Account Details -->
+      <div class="glass-card form-group">
+        <div class="group-header">
+          <div class="group-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M2 10h20"></path></svg>
+          </div>
+          <h3>Account & Billing</h3>
         </div>
-        <div class="field">
-          <label>Multiple Lines</label>
-          <select name="MultipleLines">
-            <option value="No">No</option>
-            <option value="Yes">Yes</option>
-            <option value="No phone service">No phone service</option>
-          </select>
+        <div class="grid-2">
+          <div class="input-wrapper">
+            <label>Tenure (Months)</label>
+            <input type="number" name="tenure" value="12" min="0" max="72" class="premium-input">
+          </div>
+          <div class="input-wrapper">
+            <label>Monthly Charges ($)</label>
+            <input type="number" name="MonthlyCharges" value="65.00" step="0.01" min="0" class="premium-input">
+          </div>
+          <div class="input-wrapper">
+            <label>Total Charges ($)</label>
+            <input type="number" name="TotalCharges" value="780.00" step="0.01" min="0" class="premium-input">
+          </div>
+          <div class="input-wrapper">
+            <label>Contract Type</label>
+            <div class="custom-select">
+              <select name="Contract">
+                <option value="Month-to-month">Month-to-month</option>
+                <option value="One year">One year</option>
+                <option value="Two year">Two year</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <label>Paperless Billing</label>
+            <div class="custom-select">
+              <select name="PaperlessBilling">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <label>Payment Method</label>
+            <div class="custom-select">
+              <select name="PaymentMethod">
+                <option value="Electronic check">Electronic check</option>
+                <option value="Mailed check">Mailed check</option>
+                <option value="Bank transfer (automatic)">Bank transfer (auto)</option>
+                <option value="Credit card (automatic)">Credit card (auto)</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Internet Services -->
-    <div class="form-section">
-      <div class="section-header">
-        <span class="section-tag">04</span>
-        <span class="section-title">Internet Services</span>
+      <!-- Section 3: Services -->
+      <div class="glass-card form-group">
+        <div class="group-header">
+          <div class="group-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+          </div>
+          <h3>Services Ecosystem</h3>
+        </div>
+        
+        <div class="grid-2">
+          <!-- Phone -->
+          <div class="input-wrapper">
+            <label>Phone Service</label>
+            <div class="custom-select">
+              <select name="PhoneService">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <label>Multiple Lines</label>
+            <div class="custom-select">
+              <select name="MultipleLines">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No phone service">No phone service</option>
+              </select>
+            </div>
+          </div>
+          <!-- Internet -->
+          <div class="input-wrapper" style="grid-column: 1 / -1; margin-top: 10px;">
+            <label>Internet Service Level</label>
+            <div class="custom-select highlight-select">
+              <select name="InternetService" id="internetService" onchange="updateInternetDeps()">
+                <option value="Fiber optic">Fiber optic</option>
+                <option value="DSL">DSL</option>
+                <option value="No">None</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="input-wrapper">
+            <label>Online Security</label>
+            <div class="custom-select">
+              <select name="OnlineSecurity" class="internet-dep">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No internet service" style="display:none;">No internet service</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <label>Online Backup</label>
+            <div class="custom-select">
+              <select name="OnlineBackup" class="internet-dep">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No internet service" style="display:none;">No internet service</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <label>Device Protection</label>
+            <div class="custom-select">
+              <select name="DeviceProtection" class="internet-dep">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No internet service" style="display:none;">No internet service</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <label>Tech Support</label>
+            <div class="custom-select">
+              <select name="TechSupport" class="internet-dep">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No internet service" style="display:none;">No internet service</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <label>Streaming TV</label>
+            <div class="custom-select">
+              <select name="StreamingTV" class="internet-dep">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No internet service" style="display:none;">No internet service</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <label>Streaming Movies</label>
+            <div class="custom-select">
+              <select name="StreamingMovies" class="internet-dep">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+                <option value="No internet service" style="display:none;">No internet service</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Internet Service</label>
-          <select name="InternetService" id="internetService" onchange="updateInternetDeps()">
-            <option value="DSL">DSL</option>
-            <option value="Fiber optic">Fiber optic</option>
-            <option value="No">No</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Online Security</label>
-          <select name="OnlineSecurity" class="internet-dep">
-            <option value="No">No</option>
-            <option value="Yes">Yes</option>
-            <option value="No internet service">No internet service</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Online Backup</label>
-          <select name="OnlineBackup" class="internet-dep">
-            <option value="No">No</option>
-            <option value="Yes">Yes</option>
-            <option value="No internet service">No internet service</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Device Protection</label>
-          <select name="DeviceProtection" class="internet-dep">
-            <option value="No">No</option>
-            <option value="Yes">Yes</option>
-            <option value="No internet service">No internet service</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Tech Support</label>
-          <select name="TechSupport" class="internet-dep">
-            <option value="No">No</option>
-            <option value="Yes">Yes</option>
-            <option value="No internet service">No internet service</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Streaming TV</label>
-          <select name="StreamingTV" class="internet-dep">
-            <option value="No">No</option>
-            <option value="Yes">Yes</option>
-            <option value="No internet service">No internet service</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Streaming Movies</label>
-          <select name="StreamingMovies" class="internet-dep">
-            <option value="No">No</option>
-            <option value="Yes">Yes</option>
-            <option value="No internet service">No internet service</option>
-          </select>
-        </div>
-      </div>
-    </div>
 
-    <div class="submit-wrap">
-      <button type="submit" class="btn-predict" id="submitBtn">
-        Analyze Churn Risk →
+    </form>
+  </main>
+
+  <!-- Right Column: Analytics & Actions Panel -->
+  <aside class="dashboard-sidebar">
+    <div class="sticky-panel">
+      
+      <!-- Action Button -->
+      <button type="submit" form="churnForm" class="btn-primary" id="submitBtn">
+        <span class="btn-text">Run Inference Engine</span>
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
+
+      <!-- Results Display -->
+      <div id="resultPanel" class="results-container">
+        
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+          <div class="radar-animation">
+             <div class="circle"></div>
+             <div class="circle"></div>
+             <div class="circle"></div>
+          </div>
+          <p>Awaiting customer data to generate prediction.</p>
+        </div>
+
+        <!-- Populated State -->
+        <div class="results-data" id="resultsData" style="display: none;">
+          <div class="verdict-banner" id="verdictBanner">
+            <span class="verdict-icon" id="verdictIcon">⚡</span>
+            <div class="verdict-content">
+              <span class="verdict-subtitle">PREDICTION</span>
+              <h3 id="verdictText">High Churn Risk</h3>
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <span class="metric-label">Churn Prob.</span>
+              <div class="metric-value danger" id="valChurn">--%</div>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Retention Prob.</span>
+              <div class="metric-value success" id="valStay">--%</div>
+            </div>
+            <div class="metric-card full-width">
+              <span class="metric-label">Risk Tier</span>
+              <div class="risk-pill" id="valRisk">--</div>
+            </div>
+          </div>
+
+          <div class="probability-bars">
+            <div class="bar-group">
+              <div class="bar-header">
+                <span>Churn Likelihood</span>
+                <span id="labelChurn">0%</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill danger-fill" id="barChurn" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-header">
+                <span>Retention Likelihood</span>
+                <span id="labelStay">0%</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill success-fill" id="barStay" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <div class="system-footer">
+        Powered by <br><strong>Random Forest · v1.2</strong>
+      </div>
     </div>
-  </form>
+  </aside>
 
-  <!-- Result Panel -->
-  <div id="result"></div>
-
-  <footer>
-    ChurnSight · Powered by Random Forest · Telco Customer Churn Dataset
-  </footer>
 </div>
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
